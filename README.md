@@ -52,81 +52,80 @@
 ---
 
 
-🤗 LeRobot aims to provide models, datasets, and tools for real-world robotics in PyTorch. The goal is to lower the barrier to entry to robotics so that everyone can contribute and benefit from sharing datasets and pretrained models.
+🤗 LeRobot 旨在为现实世界机器人技术提供基于 PyTorch 的模型、数据集和工具。我们的目标是降低机器人技术的入门门槛，让每个人都能通过共享数据集和预训练模型参与其中并从中受益。
 
-🤗 LeRobot contains state-of-the-art approaches that have been shown to transfer to the real-world with a focus on imitation learning and reinforcement learning.
+🤗 LeRobot 包含最先进的算法方案，这些方案已被证实在现实世界中具有迁移应用价值，重点关注模仿学习与强化学习方向。
 
-🤗 LeRobot already provides a set of pretrained models, datasets with human collected demonstrations, and simulation environments to get started without assembling a robot. In the coming weeks, the plan is to add more and more support for real-world robotics on the most affordable and capable robots out there.
+🤗 LeRobot 现已提供多组预训练模型、人工演示数据集和仿真环境，无需组装实体机器人即可快速上手。未来数周内，我们将持续扩展对高性价比实体机器人的支持。
 
-🤗 LeRobot hosts pretrained models and datasets on this Hugging Face community page: [huggingface.co/lerobot](https://huggingface.co/lerobot)
+🤗 LeRobot 所有预训练模型和数据集均托管于 Hugging Face 社区页面：[huggingface.co/lerobot](https://huggingface.co/lerobot)
 
-#### Examples of pretrained models on simulation environments
+#### 仿真环境预训练模型示例
 
 <table>
   <tr>
-    <td><img src="media/gym/aloha_act.gif" width="100%" alt="ACT policy on ALOHA env"/></td>
-    <td><img src="media/gym/simxarm_tdmpc.gif" width="100%" alt="TDMPC policy on SimXArm env"/></td>
-    <td><img src="media/gym/pusht_diffusion.gif" width="100%" alt="Diffusion policy on PushT env"/></td>
+    <td><img src="media/gym/aloha_act.gif" width="100%" alt="ALOHA环境中的ACT策略"/></td>
+    <td><img src="media/gym/simxarm_tdmpc.gif" width="100%" alt="SimXArm环境中的TDMPC策略"/></td>
+    <td><img src="media/gym/pusht_diffusion.gif" width="100%" alt="PushT环境中的Diffusion策略"/></td>
   </tr>
   <tr>
-    <td align="center">ACT policy on ALOHA env</td>
-    <td align="center">TDMPC policy on SimXArm env</td>
-    <td align="center">Diffusion policy on PushT env</td>
+    <td align="center">ALOHA环境ACT策略</td>
+    <td align="center">SimXArm环境TDMPC策略</td>
+    <td align="center">PushT环境Diffusion策略</td>
   </tr>
 </table>
 
-### Acknowledgment
+### 致谢声明
 
-- Thanks to Tony Zhao, Zipeng Fu and colleagues for open sourcing ACT policy, ALOHA environments and datasets. Ours are adapted from [ALOHA](https://tonyzhaozh.github.io/aloha) and [Mobile ALOHA](https://mobile-aloha.github.io).
-- Thanks to Cheng Chi, Zhenjia Xu and colleagues for open sourcing Diffusion policy, Pusht environment and datasets, as well as UMI datasets. Ours are adapted from [Diffusion Policy](https://diffusion-policy.cs.columbia.edu) and [UMI Gripper](https://umi-gripper.github.io).
-- Thanks to Nicklas Hansen, Yunhai Feng and colleagues for open sourcing TDMPC policy, Simxarm environments and datasets. Ours are adapted from [TDMPC](https://github.com/nicklashansen/tdmpc) and [FOWM](https://www.yunhaifeng.com/FOWM).
-- Thanks to Antonio Loquercio and Ashish Kumar for their early support.
-- Thanks to [Seungjae (Jay) Lee](https://sjlee.cc/), [Mahi Shafiullah](https://mahis.life/) and colleagues for open sourcing [VQ-BeT](https://sjlee.cc/vq-bet/) policy and helping us adapt the codebase to our repository. The policy is adapted from [VQ-BeT repo](https://github.com/jayLEE0301/vq_bet_official).
+- 感谢 Tony Zhao、Zipeng Fu 等研究者开源 ACT 策略、ALOHA 环境及数据集。我们的实现基于 [ALOHA](https://tonyzhaozh.github.io/aloha) 与 [Mobile ALOHA](https://mobile-aloha.github.io) 项目。
+- 感谢 Cheng Chi、Zhenjia Xu 等研究者开源 Diffusion 策略、Pusht 环境与数据集以及 UMI 数据集。我们的实现参考了 [Diffusion Policy](https://diffusion-policy.cs.columbia.edu) 和 [UMI Gripper](https://umi-gripper.github.io) 项目。
+- 感谢 Nicklas Hansen、Yunhai Feng 等研究者开源 TDMPC 策略、Simxarm 环境及数据集。我们的实现源自 [TDMPC](https://github.com/nicklashansen/tdmpc) 与 [FOWM](https://www.yunhaifeng.com/FOWM) 项目。
+- 感谢 Antonio Loquercio 和 Ashish Kumar 的早期支持。
+- 感谢 [Seungjae (Jay) Lee](https://sjlee.cc/)、[Mahi Shafiullah](https://mahis.life/) 等研究者开源 [VQ-BeT](https://sjlee.cc/vq-bet/) 策略并协助代码库适配。该策略改编自 [VQ-BeT 代码库](https://github.com/jayLEE0301/vq_bet_official)。
 
+## 安装指南
 
-## Installation
-
-Download our source code:
+下载源代码：
 ```bash
 git clone https://github.com/huggingface/lerobot.git
 cd lerobot
 ```
 
-Create a virtual environment with Python 3.10 and activate it, e.g. with [`miniconda`](https://docs.anaconda.com/free/miniconda/index.html):
+创建 Python 3.10 虚拟环境并激活（推荐使用 [`miniconda`](https://docs.anaconda.com/free/miniconda/index.html)）：
 ```bash
 conda create -y -n lerobot python=3.10
 conda activate lerobot
 ```
 
-When using `miniconda`, if you don't have `ffmpeg` in your environment:
+使用 `miniconda` 时若缺少 `ffmpeg` 组件：
 ```bash
 conda install ffmpeg
 ```
 
-Install 🤗 LeRobot:
+安装 🤗 LeRobot：
 ```bash
 pip install --no-binary=av -e .
 ```
 
-> **NOTE:** If you encounter build errors, you may need to install additional dependencies (`cmake`, `build-essential`, and `ffmpeg libs`). On Linux, run:
-`sudo apt-get install cmake build-essential python-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev pkg-config`. For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
+> **注意：** 如遇编译错误，可能需要安装额外依赖（`cmake`、`build-essential` 和 `ffmpeg 库`）。Linux 系统请执行：
+`sudo apt-get install cmake build-essential python-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev pkg-config`。其他系统参见：[PyAV 编译指南](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
 
-For simulations, 🤗 LeRobot comes with gymnasium environments that can be installed as extras:
+仿真环境支持通过附加组件安装：
 - [aloha](https://github.com/huggingface/gym-aloha)
 - [xarm](https://github.com/huggingface/gym-xarm)
 - [pusht](https://github.com/huggingface/gym-pusht)
 
-For instance, to install 🤗 LeRobot with aloha and pusht, use:
+例如安装含 aloha 和 pusht 组件的完整环境：
 ```bash
 pip install --no-binary=av -e ".[aloha, pusht]"
 ```
 
-To use [Weights and Biases](https://docs.wandb.ai/quickstart) for experiment tracking, log in with
+使用 [Weights and Biases](https://docs.wandb.ai/quickstart) 进行实验追踪时需登录：
 ```bash
 wandb login
 ```
 
-(note: you will also need to enable WandB in the configuration. See below.)
+（注：还需在配置中启用 WandB 功能，详见后续说明）
 
 ## Walkthrough
 
