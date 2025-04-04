@@ -126,43 +126,42 @@ wandb login
 ```
 
 （注：还需在配置中启用 WandB 功能，详见后续说明）
-
-## Walkthrough
+## 使用指南
 
 ```
 .
-├── examples             # contains demonstration examples, start here to learn about LeRobot
-|   └── advanced         # contains even more examples for those who have mastered the basics
+├── examples             # 包含演示示例，从这里开始了解LeRobot
+|   └── advanced         # 包含更多进阶示例，适合已掌握基础的用户
 ├── lerobot
-|   ├── configs          # contains config classes with all options that you can override in the command line
-|   ├── common           # contains classes and utilities
-|   |   ├── datasets       # various datasets of human demonstrations: aloha, pusht, xarm
-|   |   ├── envs           # various sim environments: aloha, pusht, xarm
-|   |   ├── policies       # various policies: act, diffusion, tdmpc
-|   |   ├── robot_devices  # various real devices: dynamixel motors, opencv cameras, koch robots
-|   |   └── utils          # various utilities
-|   └── scripts          # contains functions to execute via command line
-|       ├── eval.py                 # load policy and evaluate it on an environment
-|       ├── train.py                # train a policy via imitation learning and/or reinforcement learning
-|       ├── control_robot.py        # teleoperate a real robot, record data, run a policy
-|       ├── push_dataset_to_hub.py  # convert your dataset into LeRobot dataset format and upload it to the Hugging Face hub
-|       └── visualize_dataset.py    # load a dataset and render its demonstrations
-├── outputs               # contains results of scripts execution: logs, videos, model checkpoints
-└── tests                 # contains pytest utilities for continuous integration
+|   ├── configs          # 包含配置类，所有选项可通过命令行参数覆盖
+|   ├── common           # 包含通用类和工具
+|   |   ├── datasets       # 多样化的人类演示数据集：aloha, pusht, xarm
+|   |   ├── envs           # 多样化仿真环境：aloha, pusht, xarm
+|   |   ├── policies       # 多样化策略：act, diffusion, tdmpc
+|   |   ├── robot_devices  # 多样化真实设备：dynamixel电机，opencv摄像头，koch机器人
+|   |   └── utils          # 多样化工具集
+|   └── scripts          # 包含可通过命令行执行的函数
+|       ├── eval.py                 # 加载策略并在环境中评估
+|       ├── train.py                # 通过模仿学习和/或强化学习训练策略
+|       ├── control_robot.py        # 远程操控真实机器人，记录数据，运行策略
+|       ├── push_dataset_to_hub.py  # 将数据集转换为LeRobot格式并上传至Hugging Face hub
+|       └── visualize_dataset.py    # 加载数据集并渲染演示内容
+├── outputs               # 包含脚本执行结果：日志、视频、模型检查点
+└── tests                 # 包含持续集成的pytest工具
 ```
 
-### Visualize datasets
+### 可视化数据集
 
-Check out [example 1](./examples/1_load_lerobot_dataset.py) that illustrates how to use our dataset class which automatically downloads data from the Hugging Face hub.
+参考[示例1](./examples/1_load_lerobot_dataset.py)，了解如何使用我们的数据集类自动从Hugging Face hub下载数据。
 
-You can also locally visualize episodes from a dataset on the hub by executing our script from the command line:
+您也可以通过命令行执行脚本本地可视化hub数据集中的片段：
 ```bash
 python lerobot/scripts/visualize_dataset.py \
     --repo-id lerobot/pusht \
     --episode-index 0
 ```
 
-or from a dataset in a local folder with the `root` option and the `--local-files-only` (in the following case the dataset will be searched for in `./my_local_data_dir/lerobot/pusht`)
+或通过`root`选项和`--local-files-only`参数可视化本地文件夹中的数据集（以下示例将在`./my_local_data_dir/lerobot/pusht`中搜索数据集）：
 ```bash
 python lerobot/scripts/visualize_dataset.py \
     --repo-id lerobot/pusht \
@@ -171,58 +170,56 @@ python lerobot/scripts/visualize_dataset.py \
     --episode-index 0
 ```
 
-
-It will open `rerun.io` and display the camera streams, robot states and actions, like this:
+该操作将打开`rerun.io`并显示摄像头流、机器人状态和动作，如下所示：
 
 https://github-production-user-asset-6210df.s3.amazonaws.com/4681518/328035972-fd46b787-b532-47e2-bb6f-fd536a55a7ed.mov?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240505%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240505T172924Z&X-Amz-Expires=300&X-Amz-Signature=d680b26c532eeaf80740f08af3320d22ad0b8a4e4da1bcc4f33142c15b509eda&X-Amz-SignedHeaders=host&actor_id=24889239&key_id=0&repo_id=748713144
 
+我们的脚本还可可视化远程服务器存储的数据集。更多指令请参见`python lerobot/scripts/visualize_dataset.py --help`。
 
-Our script can also visualize datasets stored on a distant server. See `python lerobot/scripts/visualize_dataset.py --help` for more instructions.
+### `LeRobotDataset`格式
 
-### The `LeRobotDataset` format
+`LeRobotDataset`格式的数据集使用非常简单。只需通过`dataset = LeRobotDataset("lerobot/aloha_static_coffee")`即可从Hugging Face hub或本地文件夹加载，并可像任何Hugging Face和PyTorch数据集一样索引。例如`dataset[0]`将检索数据集中的单个时间帧，包含观察值和动作作为PyTorch张量，可直接输入模型。
 
-A dataset in `LeRobotDataset` format is very simple to use. It can be loaded from a repository on the Hugging Face hub or a local folder simply with e.g. `dataset = LeRobotDataset("lerobot/aloha_static_coffee")` and can be indexed into like any Hugging Face and PyTorch dataset. For instance `dataset[0]` will retrieve a single temporal frame from the dataset containing observation(s) and an action as PyTorch tensors ready to be fed to a model.
+`LeRobotDataset`的一个特点是，除了通过索引检索单个帧外，还可以通过设置`delta_timestamps`为相对于索引帧的相对时间列表，基于时间关系检索多个帧。例如，使用`delta_timestamps = {"observation.image": [-1, -0.5, -0.2, 0]}`可以检索给定索引的4帧：3个"先前"帧（1秒、0.5秒和0.2秒前）和索引帧本身（对应0条目）。更多关于`delta_timestamps`的细节请参考示例[1_load_lerobot_dataset.py](examples/1_load_lerobot_dataset.py)。
 
-A specificity of `LeRobotDataset` is that, rather than retrieving a single frame by its index, we can retrieve several frames based on their temporal relationship with the indexed frame, by setting `delta_timestamps` to a list of relative times with respect to the indexed frame. For example, with `delta_timestamps = {"observation.image": [-1, -0.5, -0.2, 0]}`  one can retrieve, for a given index, 4 frames: 3 "previous" frames 1 second, 0.5 seconds, and 0.2 seconds before the indexed frame, and the indexed frame itself (corresponding to the 0 entry). See example [1_load_lerobot_dataset.py](examples/1_load_lerobot_dataset.py) for more details on `delta_timestamps`.
+在底层，`LeRobotDataset`格式使用了多种数据序列化方式，如果您计划更密切地使用此格式，了解这些方式会很有帮助。我们尝试创建了一个灵活而简单的数据集格式，涵盖了强化学习和机器人技术中的大多数特征和特性，重点关注摄像头和机器人状态，但可以轻松扩展到其他类型的感官输入，只要它们可以用张量表示。
 
-Under the hood, the `LeRobotDataset` format makes use of several ways to serialize data which can be useful to understand if you plan to work more closely with this format. We tried to make a flexible yet simple dataset format that would cover most type of features and specificities present in reinforcement learning and robotics, in simulation and in real-world, with a focus on cameras and robot states but easily extended to other types of sensory inputs as long as they can be represented by a tensor.
-
-Here are the important details and internal structure organization of a typical `LeRobotDataset` instantiated with `dataset = LeRobotDataset("lerobot/aloha_static_coffee")`. The exact features will change from dataset to dataset but not the main aspects:
+以下是典型`LeRobotDataset`的重要细节和内部结构组织，通过`dataset = LeRobotDataset("lerobot/aloha_static_coffee")`实例化。具体特征因数据集而异，但主要方面不变：
 
 ```
-dataset attributes:
-  ├ hf_dataset: a Hugging Face dataset (backed by Arrow/parquet). Typical features example:
+数据集属性：
+  ├ hf_dataset: 一个Hugging Face数据集（由Arrow/parquet支持）。典型特征示例：
   │  ├ observation.images.cam_high (VideoFrame):
-  │  │   VideoFrame = {'path': path to a mp4 video, 'timestamp' (float32): timestamp in the video}
-  │  ├ observation.state (list of float32): position of an arm joints (for instance)
-  │  ... (more observations)
-  │  ├ action (list of float32): goal position of an arm joints (for instance)
-  │  ├ episode_index (int64): index of the episode for this sample
-  │  ├ frame_index (int64): index of the frame for this sample in the episode ; starts at 0 for each episode
-  │  ├ timestamp (float32): timestamp in the episode
-  │  ├ next.done (bool): indicates the end of en episode ; True for the last frame in each episode
-  │  └ index (int64): general index in the whole dataset
-  ├ episode_data_index: contains 2 tensors with the start and end indices of each episode
-  │  ├ from (1D int64 tensor): first frame index for each episode — shape (num episodes,) starts with 0
-  │  └ to: (1D int64 tensor): last frame index for each episode — shape (num episodes,)
-  ├ stats: a dictionary of statistics (max, mean, min, std) for each feature in the dataset, for instance
-  │  ├ observation.images.cam_high: {'max': tensor with same number of dimensions (e.g. `(c, 1, 1)` for images, `(c,)` for states), etc.}
+  │  │   VideoFrame = {'path': mp4视频路径, 'timestamp' (float32): 视频中的时间戳}
+  │  ├ observation.state (float32列表): 机械臂关节位置（例如）
+  │  ...（更多观察值）
+  │  ├ action (float32列表): 机械臂关节目标位置（例如）
+  │  ├ episode_index (int64): 该样本的片段索引
+  │  ├ frame_index (int64): 该样本在片段中的帧索引；每个片段从0开始
+  │  ├ timestamp (float32): 片段中的时间戳
+  │  ├ next.done (bool): 表示片段结束；每个片段的最后一帧为True
+  │  └ index (int64): 整个数据集中的通用索引
+  ├ episode_data_index: 包含每个片段的起始和结束索引的两个张量
+  │  ├ from (1D int64张量): 每个片段的第一帧索引 — 形状 (num episodes,)，从0开始
+  │  └ to: (1D int64张量): 每个片段的最后一帧索引 — 形状 (num episodes,)
+  ├ stats: 数据集中每个特征的统计字典（最大值、均值、最小值、标准差），例如
+  │  ├ observation.images.cam_high: {'max': 与维度数相同的张量（例如图像为`(c, 1, 1)`，状态为`(c,)`），等等}
   │  ...
-  ├ info: a dictionary of metadata on the dataset
-  │  ├ codebase_version (str): this is to keep track of the codebase version the dataset was created with
-  │  ├ fps (float): frame per second the dataset is recorded/synchronized to
-  │  ├ video (bool): indicates if frames are encoded in mp4 video files to save space or stored as png files
-  │  └ encoding (dict): if video, this documents the main options that were used with ffmpeg to encode the videos
-  ├ videos_dir (Path): where the mp4 videos or png images are stored/accessed
-  └ camera_keys (list of string): the keys to access camera features in the item returned by the dataset (e.g. `["observation.images.cam_high", ...]`)
+  ├ info: 数据集的元数据字典
+  │  ├ codebase_version (str): 记录创建数据集时使用的代码库版本
+  │  ├ fps (float): 数据集记录/同步的帧率
+  │  ├ video (bool): 指示帧是否编码为mp4视频文件以节省空间或存储为png文件
+  │  └ encoding (dict): 如果是视频，记录使用ffmpeg编码视频时的主要选项
+  ├ videos_dir (Path): mp4视频或png图像的存储/访问路径
+  └ camera_keys (字符串列表): 访问数据集中相机特征的键（例如`["observation.images.cam_high", ...]`）
 ```
 
-A `LeRobotDataset` is serialised using several widespread file formats for each of its parts, namely:
-- hf_dataset stored using Hugging Face datasets library serialization to parquet
-- videos are stored in mp4 format to save space
-- metadata are stored in plain json/jsonl files
+`LeRobotDataset`使用多种广泛使用的文件格式序列化其各部分：
+- hf_dataset使用Hugging Face datasets库序列化为parquet
+- 视频以mp4格式存储以节省空间
+- 元数据以纯json/jsonl文件存储
 
-Dataset can be uploaded/downloaded from the HuggingFace hub seamlessly. To work on a local dataset, you can specify its location with the `root` argument if it's not in the default `~/.cache/huggingface/lerobot` location.
+数据集可以无缝上传/下载到HuggingFace hub。要在本地数据集上工作，如果不在默认的`~/.cache/huggingface/lerobot`位置，可以通过`root`参数指定其位置。
 
 ### 评估预训练策略
 参考，该示例展示了如何从Hugging Face平台下载预训练策略，并在对应环境中运行评估。
