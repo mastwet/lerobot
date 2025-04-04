@@ -183,6 +183,8 @@ python lerobot/scripts/eval.py \
     --eval.n_episodes=10 \
     --policy.use_amp=false \
     --policy.device=cuda
+
+
 ```
 注意：训练完自己的策略后，可以使用以下命令重新评估检查点：
 ```bash
@@ -190,4 +192,95 @@ python lerobot/scripts/eval.py --policy.path={OUTPUT_DIR}/checkpoints/last/pretr
 ```
 更多说明请参见 `python lerobot/scripts/eval.py --help`。
 ### 训练自己的策略
-查看 [示例 3](./examples/3_train_policy.py)，了解如何使用我们的核心库在 Python 中训练模型，以及 [示例 4](./examples/4_train_policy_with_
+查看 [示例 3](./examples/3_train_policy.py)，了解如何使用我们的核心库在 Python 中训练模型，以及 [示例 4](./examples/4_train_policy_with_script.md)，了解如何通过命令行使用我们的训练脚本。
+要使用 wandb 记录训练和评估曲线，请确保已运行 `wandb login` 作为一次性设置步骤。然后，在运行上述训练命令时，通过添加 `--wandb.enable=true` 在配置中启用 WandB。
+终端中还会以黄色显示指向 wandb 日志的链接。以下是它们在浏览器中的示例。请同时查看了解日志中常用指标的解释。
+注意：为了效率，训练期间每个检查点仅评估少量片段。你可以使用 `--eval.n_episodes=500` 来评估比默认更多的片段。或者在训练后，你可能希望在更多片段上重新评估最佳检查点或更改评估设置。更多说明请参见 `python lerobot/scripts/eval.py --help`。
+#### 复现最先进（SOTA）结果
+我们在 [hub 页面](https://huggingface.co/lerobot) 提供了一些预训练策略，可以达到最先进的性能。你可以通过加载其运行的配置来复现它们的训练。只需运行：
+```bash
+python lerobot/scripts/train.py --config_path=lerobot/diffusion_pusht
+```
+即可复现 Diffusion Policy 在 PushT 任务上的 SOTA 结果。
+## 贡献
+如果你想为 🤗 LeRobot 做出贡献，请查看我们的[贡献指南](https://github.com/huggingface/lerobot/blob/main/CONTRIBUTING.md)。
+### 添加预训练策略
+训练完策略后，你可以使用类似 `${hf_user}/${repo_name}` 的 hub id（例如 [lerobot/diffusion_pusht](https://huggingface.co/lerobot/diffusion_pusht)）将其上传到 Hugging Face hub。
+首先需要找到位于实验目录中的检查点文件夹（例如 `outputs/train/2024-05-05/20-21-12_aloha_act_default/checkpoints/002500`）。其中有一个 `pretrained_model` 目录，应包含：
+- `config.json`：策略配置的序列化版本（遵循策略的数据类配置）。
+- `model.safetensors`：一组 `torch.nn.Module` 参数，以 [Hugging Face Safetensors](https://huggingface.co/docs/safetensors/index) 格式保存。
+- `train_config.json`：包含训练使用的所有参数的统一配置。策略配置应与 `config.json` 完全匹配。这对于想要评估你的策略或复现结果的人很有用。
+要将这些上传到 hub，运行以下命令：
+```bash
+huggingface-cli upload ${hf_user}/${repo_name} path/to/pretrained_model
+```
+查看 [eval.py](https://github.com/huggingface/lerobot/blob/main/lerobot/scripts/eval.py) 了解其他人如何使用你的策略的示例。
+### 通过性能分析改进代码
+以下是一个代码片段示例，用于分析策略评估的性能：
+```python
+from torch.profiler import profile, record_function, ProfilerActivity
+def trace_handler(prof):
+    prof.export_chrome_trace(f"tmp/trace_schedule_{prof.step_num}.json")
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    schedule=torch.profiler.schedule(
+        wait=2,
+        warmup=2,
+        active=3,
+    ),
+    on_trace_ready=trace_handler
+) as prof:
+    with record_function("eval_policy"):
+        for i in range(num_episodes):
+            prof.step()
+            # 插入要分析的代码，可能是 eval_policy 函数的整个主体
+```
+## 引用
+如果你想，可以引用这项工作：
+```bibtex
+@misc{cadene2024lerobot,
+    author = {Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Wolf, Thomas},
+    title = {LeRobot: State-of-the-art Machine Learning for Real-World Robotics in Pytorch},
+    howpublished = "\url{https://github.com/huggingface/lerobot}",
+    year = {2024}
+}
+```
+此外，如果你使用了任何特定的策略架构、预训练模型或数据集，建议引用原始工作的作者，如下所示：
+- [Diffusion Policy](https://diffusion-policy.cs.columbia.edu)
+```bibtex
+@article{chi2024diffusionpolicy,
+	author = {Cheng Chi and Zhenjia Xu and Siyuan Feng and Eric Cousineau and Yilun Du and Benjamin Burchfiel and Russ Tedrake and Shuran Song},
+	title ={Diffusion Policy: Visuomotor Policy Learning via Action Diffusion},
+	journal = {The International Journal of Robotics Research},
+	year = {2024},
+}
+```
+- [ACT 或 ALOHA](https://tonyzhaozh.github.io/aloha)
+```bibtex
+@article{zhao2023learning,
+  title={Learning fine-grained bimanual manipulation with low-cost hardware},
+  author={Zhao, Tony Z and Kumar, Vikash and Levine, Sergey and Finn, Chelsea},
+  journal={arXiv preprint arXiv:2304.13705},
+  year={2023}
+}
+```
+- [TDMPC](https://www.nicklashansen.com/td-mpc/)
+```bibtex
+@inproceedings{Hansen2022tdmpc,
+	title={Temporal Difference Learning for Model Predictive Control},
+	author={Nicklas Hansen and Xiaolong Wang and Hao Su},
+	booktitle={ICML},
+	year={2022}
+}
+```
+- [VQ-BeT](https://sjlee.cc/vq-bet/)
+```bibtex
+@article{lee2024behavior,
+  title={Behavior generation with latent actions},
+  author={Lee, Seungjae and Wang, Yibin and Etukuru, Haritheja and Kim, H Jin and Shafiullah, Nur Muhammad Mahi and Pinto, Lerrel},
+  journal={arXiv preprint arXiv:2403.03181},
+  year={2024}
+}
+```
+## Star 历史
+[![Star History Chart](https://api.star-history.com/svg?repos=huggingface/lerobot&type=Timeline)](https://star-history.com/#huggingface/lerobot&Timeline)
