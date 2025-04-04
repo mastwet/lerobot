@@ -46,7 +46,7 @@
 <br/>
 
 <h3 align="center">
-    <p>LeRobot: State-of-the-art AI for real-world robotics</p>
+    <p>LeRobot：面向真实世界机器人的尖端人工智能</p>
 </h3>
 
 ---
